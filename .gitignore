@@ -1,0 +1,10 @@
+node_modules/
+dist/
+test-results/
+playwright-report/
+.superdesign/tmp/
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
