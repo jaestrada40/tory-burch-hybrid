@@ -29,11 +29,11 @@ npm run preview -- --port 4173
 
 La ilustración es decorativa: sus manecillas no representan la hora reportada por el reloj.
 
-## Sincronización de hora: pendiente de identificar el protocolo
+## Sincronización de hora (experimental, solo Misfit)
 
-**El botón está deshabilitado intencionalmente. No existe ninguna llamada a writeValue ni comandos propietarios en el código de producción.** Detectar Current Time Service o una característica con propiedad `write` NO demuestra que este modelo admita ese formato para ajustar las manecillas. Tampoco basta con reconocer el nombre comercial. Primero hay que verificar modelo/firmware, autenticación, UUID, formato exacto, zona horaria, efectos y respuesta de confirmación. No se presenta un éxito de sincronización ficticio.
+El botón **Sincronizar hora** se habilita únicamente si, tras conectar, el reloj informa fabricante `Misfit`, un firmware que el adaptador Misfit de Gadgetbridge reconoce (`HL0.0.0.16r.v7` verificado como cubierto por esa regla) y expone el servicio `3dda0001-957f-7d4a-34a6-74696673696d` con `3dda0002` escribible. En cualquier otro reloj permanece deshabilitado.
 
-Para añadirla más adelante, crear un adaptador específico y revisado para el modelo/firmware confirmado, con evidencia del protocolo y pruebas de sus bytes. Mantener deshabilitados los modelos desconocidos y no reportar éxito sin la confirmación apropiada del dispositivo. No hay un editor de bytes ni una opción para saltarse esta protección.
+Comando (fuente: `SetTimeRequest.java` y `MisfitWatchAdapter.java` de Gadgetbridge), escrito en `3dda0002`: `02 04 | epoch s (i32) | ms (i16) | minutos de zona (i16)`, little-endian, 10 bytes. Tras escribir se espera una notificación cuyo primer byte sea `03`; si llega se informa "el reloj respondió", si no, se informa que no hubo confirmación. **Gadgetbridge no documenta qué byte confirma el éxito**, así que la comprobación definitiva es ver si el reloj muestra la hora correcta. Los tests verifican los bytes contra un reloj simulado; **no se ha probado con el reloj físico**. No hay editor de bytes ni otros comandos.
 
 ## Opciones avanzadas
 
